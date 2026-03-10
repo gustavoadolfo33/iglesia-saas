@@ -16,6 +16,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+
+
         // User::factory(10)->create();
         $this->call([
             RoleSeeder::class,
@@ -23,6 +25,8 @@ class DatabaseSeeder extends Seeder
             ChurchSeeder::class,
             AdminUserSeeder::class,
             ChurchUserSeeder::class,
+            MeetingTypeSeeder::class,
+            MeetingGroupSeeder::class,
         ]);
     }
 }
