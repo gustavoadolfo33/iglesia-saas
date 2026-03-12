@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,16 +17,7 @@ class EnsureFilamentRoleAccess
             return $next($request);
         }
 
-        if (
-            !$user->hasAnyRole([
-                'super-admin',
-                'presidente',
-                'tesorero',
-                'presbitero',
-                'pastor',
-                'contador',
-            ])
-        ) {
+        if (!$user->hasAnyRole(User::panelRoleNames())) {
             abort(403, 'No tienes permisos para acceder al panel de administración.');
         }
 

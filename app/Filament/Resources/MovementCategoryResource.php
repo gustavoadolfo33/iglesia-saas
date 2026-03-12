@@ -17,6 +17,10 @@ class MovementCategoryResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-tag';
     protected static ?string $navigationGroup = 'Finanzas';
+    protected static ?string $navigationLabel = 'Categorías financieras';
+    protected static ?int $navigationSort = 20;
+    protected static ?string $modelLabel = 'categoria financiera';
+    protected static ?string $pluralModelLabel = 'categorías financieras';
 
     public static function form(Form $form): Form
     {

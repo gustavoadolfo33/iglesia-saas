@@ -39,6 +39,10 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
+                \App\Filament\Widgets\MeetingsStats::class,
+                \App\Filament\Widgets\MeetingsByTypeChart::class,
+                \App\Filament\Widgets\LatestMeetings::class,
+                \App\Filament\Widgets\AttendanceByMonthChart::class,
             ])
             ->middleware([
                 EncryptCookies::class,

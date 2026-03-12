@@ -18,6 +18,9 @@ class MeetingGroupResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
     protected static ?string $navigationGroup = 'Reuniones';
     protected static ?string $navigationLabel = 'Grupos / Ministerios';
+    protected static ?int $navigationSort = 31;
+    protected static ?string $modelLabel = 'grupo / ministerio';
+    protected static ?string $pluralModelLabel = 'grupos / ministerios';
 
     public static function form(Form $form): Form
     {

@@ -13,6 +13,31 @@ class User extends Authenticatable implements FilamentUser
 {
     use HasFactory, Notifiable, HasRoles;
 
+    public const GLOBAL_ROLES = [
+        'super-admin',
+        'presidente',
+        'vicepresidente',
+        'presbitero',
+        'tesorero-global',
+    ];
+
+    public const LOCAL_ROLES = [
+        'pastor',
+        'contador-local',
+        'encargado-reuniones',
+        'encargado-seguimiento',
+        'secretario-registro',
+        'discipulador',
+    ];
+
+    public const PASTOR_ASSIGNABLE_LOCAL_ROLES = [
+        'contador-local',
+        'encargado-reuniones',
+        'encargado-seguimiento',
+        'secretario-registro',
+        'discipulador',
+    ];
+
     protected $fillable = [
         'name',
         'email',
@@ -35,9 +60,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->hasRole('super-admin')
-            || $this->isGlobalUser()
-            || $this->isTenantUser();
+        return $this->hasAnyRole(static::panelRoleNames());
     }
 
     public function churches()
@@ -52,20 +75,62 @@ class User extends Authenticatable implements FilamentUser
         return $this->belongsTo(\App\Models\Church::class, 'current_church_id');
     }
 
+    public function leaderProfiles()
+    {
+        return $this->hasMany(Leader::class);
+    }
+
+    public function createdFollowUps()
+    {
+        return $this->hasMany(FollowUp::class, 'created_by');
+    }
+
     public function isGlobalUser(): bool
     {
-        return $this->hasAnyRole([
-            'presidente',
-            'tesorero',
-            'presbitero',
-        ]);
+        return $this->hasAnyRole(array_values(array_diff(static::GLOBAL_ROLES, ['super-admin'])));
     }
 
     public function isTenantUser(): bool
     {
-        return $this->hasAnyRole([
-            'pastor',
-            'contador',
-        ]);
+        return $this->hasAnyRole(static::LOCAL_ROLES);
+    }
+
+    public function canManageUsers(): bool
+    {
+        return $this->hasAnyRole(['super-admin', 'presidente', 'vicepresidente', 'pastor']);
+    }
+
+    public function canCreateChurches(): bool
+    {
+        return $this->hasAnyRole(['super-admin', 'presidente', 'vicepresidente']);
+    }
+
+    public static function panelRoleNames(): array
+    {
+        return array_values(array_unique([
+            ...static::GLOBAL_ROLES,
+            ...static::LOCAL_ROLES,
+        ]));
+    }
+
+    public static function assignableRoleNamesFor(?self $user): array
+    {
+        if (!$user) {
+            return [];
+        }
+
+        if ($user->hasRole('super-admin')) {
+            return static::panelRoleNames();
+        }
+
+        if ($user->hasAnyRole(['presidente', 'vicepresidente'])) {
+            return array_values(array_diff(static::panelRoleNames(), ['super-admin']));
+        }
+
+        if ($user->hasRole('pastor')) {
+            return static::PASTOR_ASSIGNABLE_LOCAL_ROLES;
+        }
+
+        return [];
     }
 }

@@ -19,6 +19,9 @@ class MeetingTypeResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
     protected static ?string $navigationGroup = 'Reuniones';
     protected static ?string $navigationLabel = 'Tipos de reunión';
+    protected static ?int $navigationSort = 32;
+    protected static ?string $modelLabel = 'tipo de reunion';
+    protected static ?string $pluralModelLabel = 'tipos de reunion';
 
     public static function form(Form $form): Form
     {

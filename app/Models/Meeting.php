@@ -38,8 +38,9 @@ class Meeting extends Model
         static::creating(function (self $meeting) {
             $user = auth()->user();
 
-            if (!$user)
+            if (!$user) {
                 return;
+            }
 
             // created_by automático
             if (!$meeting->created_by) {
@@ -71,5 +72,10 @@ class Meeting extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
     }
 }

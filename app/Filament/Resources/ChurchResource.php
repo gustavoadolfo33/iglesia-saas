@@ -3,69 +3,76 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ChurchResource\Pages;
-use App\Filament\Resources\ChurchResource\RelationManagers;
 use App\Models\Church;
 use Filament\Forms;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
-use Illuminate\Support\Str;
 
 class ChurchResource extends Resource
 {
     protected static ?string $model = Church::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Administración';
+    protected static ?string $navigationLabel = 'Iglesias';
+    protected static ?int $navigationSort = 11;
+    protected static ?string $modelLabel = 'iglesia';
+    protected static ?string $pluralModelLabel = 'iglesias';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->can('iglesias.view') ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->can('iglesias.create') ?? false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()?->can('iglesias.manage') ?? false;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()?->can('iglesias.manage') ?? false;
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                //
                 TextInput::make('name')
                     ->label('Nombre')
                     ->required()
-                    ->maxLength(150)
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(function (?string $state, callable $set, ?string $get) {
-                        // Si slug está vacío, lo generamos del nombre
-                        if (!$get('slug') && $state) {
-                            $set('slug', Str::slug($state));
-                        }
-                    }),
+                    ->maxLength(150),
 
-                TextInput::make('slug')
-                    ->label('Slug')
-                    ->required()
-                    ->maxLength(150)
-                    ->unique(ignoreRecord: true),
-
-                Select::make('status')
-                    ->label('Estado')
-                    ->options([
-                        'active' => 'Activa',
-                        'inactive' => 'Inactiva',
-                    ])
-                    ->default('active')
-                    ->required(),
+                Forms\Components\Textarea::make('address')
+                    ->label('Direccion')
+                    ->rows(3)
+                    ->maxLength(200),
 
                 TextInput::make('city')
                     ->label('Ciudad')
                     ->maxLength(100),
 
-                TextInput::make('address')
-                    ->label('Dirección')
-                    ->maxLength(200),
+                TextInput::make('country')
+                    ->label('Pais')
+                    ->maxLength(100),
 
                 TextInput::make('phone')
-                    ->label('Teléfono')
+                    ->label('Telefono')
+                    ->tel()
                     ->maxLength(50),
+
+                TextInput::make('email')
+                    ->label('Email')
+                    ->email()
+                    ->maxLength(150),
             ]);
     }
 
@@ -73,16 +80,14 @@ class ChurchResource extends Resource
     {
         return $table
             ->columns([
-                //
                 Tables\Columns\TextColumn::make('name')->label('Nombre')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('slug')->label('Slug')->searchable(),
-                Tables\Columns\TextColumn::make('status')->label('Estado')->badge(),
-                Tables\Columns\TextColumn::make('city')->label('Ciudad')->searchable(),
+                Tables\Columns\TextColumn::make('city')->label('Ciudad')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('country')->label('Pais')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('phone')->label('Telefono')->toggleable(),
+                Tables\Columns\TextColumn::make('email')->label('Email')->toggleable(),
                 Tables\Columns\TextColumn::make('created_at')->label('Creado')->dateTime()->sortable(),
             ])
-            ->filters([
-                //
-            ])
+            ->filters([])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
@@ -95,9 +100,7 @@ class ChurchResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array

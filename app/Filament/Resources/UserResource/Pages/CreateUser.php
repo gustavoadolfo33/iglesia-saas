@@ -10,9 +10,19 @@ class CreateUser extends CreateRecord
 {
     protected static string $resource = UserResource::class;
 
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        return UserResource::normalizeManagementData($data);
+    }
+
     protected function afterCreate(): void
     {
-        // Sync roles (Spatie)
-        $this->record->syncRoles($this->data['roles'] ?? []);
+        $normalized = UserResource::normalizeManagementData($this->data);
+
+        $this->record->syncRoles($normalized['roles'] ?? []);
+
+        if (UserResource::isPastorManager()) {
+            $this->record->syncPermissions($normalized['extra_permissions'] ?? []);
+        }
     }
 }

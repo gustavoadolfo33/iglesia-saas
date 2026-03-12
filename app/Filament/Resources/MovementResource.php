@@ -23,6 +23,10 @@ class MovementResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
     protected static ?string $navigationGroup = 'Finanzas';
+    protected static ?string $navigationLabel = 'Movimientos';
+    protected static ?int $navigationSort = 21;
+    protected static ?string $modelLabel = 'movimiento';
+    protected static ?string $pluralModelLabel = 'movimientos';
 
     public static function form(Forms\Form $form): Forms\Form
     {
