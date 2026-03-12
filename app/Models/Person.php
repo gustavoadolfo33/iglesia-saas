@@ -71,12 +71,12 @@ class Person extends Model
 
     public function member()
     {
-        return $this->belongsTo(Member::class);
+        return $this->hasOne(Member::class, 'person_id');
     }
 
-    public function formalMember()
+    public function legacyMember()
     {
-        return $this->hasOne(Member::class, 'person_id');
+        return $this->belongsTo(Member::class, 'member_id');
     }
 
     public function status()

@@ -42,12 +42,12 @@ class Member extends Model
 
     public function person()
     {
-        return $this->hasOne(Person::class);
+        return $this->belongsTo(Person::class, 'person_id');
     }
 
-    public function canonicalPerson()
+    public function legacyPerson()
     {
-        return $this->belongsTo(Person::class, 'person_id');
+        return $this->hasOne(Person::class, 'member_id');
     }
 
     public function attendances()

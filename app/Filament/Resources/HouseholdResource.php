@@ -18,7 +18,7 @@ class HouseholdResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-home-modern';
     protected static ?string $navigationGroup = 'Personas';
     protected static ?string $navigationLabel = 'Hogares';
-    protected static ?int $navigationSort = 41;
+    protected static ?int $navigationSort = 42;
     protected static ?string $modelLabel = 'hogar';
     protected static ?string $pluralModelLabel = 'hogares';
 

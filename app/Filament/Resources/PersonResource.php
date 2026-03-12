@@ -14,6 +14,7 @@ use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class PersonResource extends Resource
 {
@@ -93,24 +94,18 @@ class PersonResource extends Resource
                         ->searchable()
                         ->preload(),
                     Forms\Components\Select::make('member_id')
-                        ->label('Miembro vinculado')
+                        ->label('Miembro formal vinculado')
+                        ->placeholder('Selecciona un miembro formal disponible')
                         ->options(function (Get $get) {
-                            $user = auth()->user();
-                            $churchId = ($user->hasRole('super-admin') || $user->isGlobalUser()) ? $get('church_id') : $user->current_church_id;
-
-                            if (!$churchId) {
-                                return [];
-                            }
-
-                            return Member::query()
-                                ->where('church_id', $churchId)
-                                ->orderBy('first_name')
-                                ->get()
-                                ->mapWithKeys(fn($member) => [$member->id => trim($member->first_name . ' ' . $member->last_name)])
-                                ->toArray();
+                            return static::getMemberOptionsForChurch(
+                                churchId: static::resolveChurchIdFromForm($get),
+                                currentPersonId: null,
+                                currentMemberId: $get('member_id'),
+                            );
                         })
                         ->searchable()
-                        ->preload(),
+                        ->preload()
+                        ->helperText('Muestra miembros formales de la misma iglesia. Prioriza miembros sin persona vinculada y conserva el vínculo actual mientras termina la transición del sistema.'),
                 ])->columns(2),
             Forms\Components\Section::make('Persona')
                 ->schema([
@@ -189,5 +184,106 @@ class PersonResource extends Resource
             'create' => Pages\CreatePerson::route('/create'),
             'edit' => Pages\EditPerson::route('/{record}/edit'),
         ];
+    }
+
+    public static function resolveChurchIdFromForm(Get $get): ?int
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            return null;
+        }
+
+        $churchId = ($user->hasRole('super-admin') || $user->isGlobalUser())
+            ? $get('church_id')
+            : $user->current_church_id;
+
+        return $churchId ? (int) $churchId : null;
+    }
+
+    public static function getMemberOptionsForChurch(?int $churchId, ?int $currentPersonId = null, mixed $currentMemberId = null): array
+    {
+        if (!$churchId) {
+            return [];
+        }
+
+        $currentPersonId = $currentPersonId ? (int) $currentPersonId : null;
+        $currentMemberId = $currentMemberId ? (int) $currentMemberId : null;
+
+        return Member::query()
+            ->where('church_id', $churchId)
+            ->where(function (Builder $query) use ($currentPersonId, $currentMemberId) {
+                $query->whereNull('person_id');
+
+                if ($currentPersonId) {
+                    $query->orWhere('person_id', $currentPersonId);
+                }
+
+                if ($currentMemberId) {
+                    $query->orWhere('id', $currentMemberId);
+                }
+            })
+            ->orderByRaw('CASE WHEN person_id IS NULL THEN 0 ELSE 1 END')
+            ->orderBy('first_name')
+            ->orderBy('last_name')
+            ->get()
+            ->mapWithKeys(function (Member $member) use ($currentPersonId) {
+                $label = trim($member->first_name . ' ' . $member->last_name);
+
+                if (blank($label)) {
+                    $label = 'Miembro #' . $member->id;
+                }
+
+                if ($member->person_id && (int) $member->person_id === (int) $currentPersonId) {
+                    $label .= ' (vinculado a esta persona)';
+                }
+
+                return [$member->id => $label];
+            })
+            ->toArray();
+    }
+
+    public static function syncMemberLink(Person $person, ?int $memberId): void
+    {
+        $memberId = $memberId ?: null;
+
+        Member::query()
+            ->where('person_id', $person->id)
+            ->when($memberId, fn(Builder $query) => $query->where('id', '!=', $memberId))
+            ->update(['person_id' => null]);
+
+        if (!$memberId) {
+            return;
+        }
+
+        $member = Member::query()->find($memberId);
+
+        if (!$member) {
+            return;
+        }
+
+        if ((int) $member->church_id !== (int) $person->church_id) {
+            return;
+        }
+
+        Person::query()
+            ->where('id', '!=', $person->id)
+            ->where('member_id', $member->id)
+            ->update(['member_id' => null]);
+
+        Member::query()
+            ->where('id', '!=', $member->id)
+            ->where('person_id', $person->id)
+            ->update(['person_id' => null]);
+
+        $member->forceFill([
+            'person_id' => $person->id,
+        ])->save();
+
+        if ((int) $person->member_id !== (int) $member->id) {
+            $person->forceFill([
+                'member_id' => $member->id,
+            ])->save();
+        }
     }
 }

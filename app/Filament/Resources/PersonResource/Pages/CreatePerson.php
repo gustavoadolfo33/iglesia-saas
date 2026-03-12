@@ -8,4 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreatePerson extends CreateRecord
 {
     protected static string $resource = PersonResource::class;
+
+    protected function afterCreate(): void
+    {
+        PersonResource::syncMemberLink($this->record, $this->record->member_id);
+    }
 }
