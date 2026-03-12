@@ -30,6 +30,11 @@ class CreateUser extends CreateRecord
 
         if (UserResource::isPastorManager()) {
             $this->record->syncPermissions($normalized['extra_permissions'] ?? []);
+            return;
+        }
+
+        if (($normalized['user_scope'] ?? null) === 'global') {
+            $this->record->syncPermissions($normalized['global_permissions'] ?? []);
         }
     }
 }

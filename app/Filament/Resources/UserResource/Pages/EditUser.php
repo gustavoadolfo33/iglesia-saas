@@ -13,10 +13,12 @@ class EditUser extends EditRecord
     protected function mutateFormDataBeforeFill(array $data): array
     {
         $data['roles'] = $this->record->roles->pluck('name')->all();
+        $data['user_scope'] = $this->record->accessScope();
         $data['base_role'] = collect($data['roles'])
             ->first(fn(string $role) => in_array($role, \App\Models\User::PASTOR_ASSIGNABLE_LOCAL_ROLES, true));
         $data['churches'] = $this->record->churches->modelKeys();
         $data['extra_permissions'] = UserResource::getDirectAdditionalPermissionsForRecord($this->record);
+        $data['global_permissions'] = UserResource::getDirectGlobalPermissionsForRecord($this->record);
 
         return $data;
     }
@@ -36,6 +38,11 @@ class EditUser extends EditRecord
 
         if (UserResource::isPastorManager()) {
             $this->record->syncPermissions($normalized['extra_permissions'] ?? []);
+            return;
+        }
+
+        if (($normalized['user_scope'] ?? null) === 'global') {
+            $this->record->syncPermissions($normalized['global_permissions'] ?? []);
         }
     }
 }

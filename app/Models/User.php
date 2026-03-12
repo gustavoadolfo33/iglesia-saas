@@ -246,6 +246,38 @@ class User extends Authenticatable implements FilamentUser
         return $this->canViewPeopleModule() || $this->canViewFollowUpsModule();
     }
 
+    public function hasGlobalRoleAssigned(): bool
+    {
+        return $this->roles->pluck('name')->intersect(static::GLOBAL_ROLES)->isNotEmpty();
+    }
+
+    public function hasLocalRoleAssigned(): bool
+    {
+        return $this->roles->pluck('name')->intersect(static::LOCAL_ROLES)->isNotEmpty();
+    }
+
+    public function accessScope(): ?string
+    {
+        if ($this->hasGlobalRoleAssigned()) {
+            return 'global';
+        }
+
+        if ($this->hasLocalRoleAssigned()) {
+            return 'local';
+        }
+
+        return null;
+    }
+
+    public function accessScopeLabel(): string
+    {
+        return match ($this->accessScope()) {
+            'global' => 'Global',
+            'local' => 'Local',
+            default => 'Sin definir',
+        };
+    }
+
     public static function panelRoleNames(): array
     {
         return array_values(array_unique([
