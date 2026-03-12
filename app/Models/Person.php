@@ -74,6 +74,11 @@ class Person extends Model
         return $this->belongsTo(Member::class);
     }
 
+    public function formalMember()
+    {
+        return $this->hasOne(Member::class, 'person_id');
+    }
+
     public function status()
     {
         return $this->belongsTo(Status::class);

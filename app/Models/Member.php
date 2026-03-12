@@ -12,6 +12,7 @@ class Member extends Model
     protected $fillable = [
         'church_id',
         'household_id',
+        'person_id',
         'first_name',
         'last_name',
         'email',
@@ -42,6 +43,11 @@ class Member extends Model
     public function person()
     {
         return $this->hasOne(Person::class);
+    }
+
+    public function canonicalPerson()
+    {
+        return $this->belongsTo(Person::class, 'person_id');
     }
 
     public function attendances()
