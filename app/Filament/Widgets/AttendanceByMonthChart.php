@@ -11,6 +11,11 @@ class AttendanceByMonthChart extends ChartWidget
 {
     protected static ?string $heading = 'Asistencia por mes';
 
+    public static function canView(): bool
+    {
+        return auth()->user()?->canViewMeetingsWidgets() ?? false;
+    }
+
     protected function getData(): array
     {
         $data = Meeting::query()

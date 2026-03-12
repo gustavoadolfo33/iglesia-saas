@@ -22,6 +22,31 @@ class StatusResource extends Resource
     protected static ?string $modelLabel = 'estado pastoral';
     protected static ?string $pluralModelLabel = 'estados pastorales';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->canViewPastoralSettings() ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->canManagePastoralSettings() ?? false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()?->canManagePastoralSettings() ?? false;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()?->canManagePastoralSettings() ?? false;
+    }
+
     public static function form(Form $form): Form
     {
         return $form->schema([

@@ -22,24 +22,29 @@ class ChurchResource extends Resource
     protected static ?string $modelLabel = 'iglesia';
     protected static ?string $pluralModelLabel = 'iglesias';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
+    }
+
     public static function canViewAny(): bool
     {
-        return auth()->user()?->can('iglesias.view') ?? false;
+        return auth()->user()?->canViewChurchManagement() ?? false;
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->can('iglesias.create') ?? false;
+        return auth()->user()?->canCreateChurches() ?? false;
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()?->can('iglesias.manage') ?? false;
+        return auth()->user()?->canManageChurchManagement() ?? false;
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()?->can('iglesias.manage') ?? false;
+        return auth()->user()?->canManageChurchManagement() ?? false;
     }
 
     public static function form(Form $form): Form

@@ -22,6 +22,31 @@ class DiscipleshipTrackResource extends Resource
     protected static ?string $modelLabel = 'ruta de discipulado';
     protected static ?string $pluralModelLabel = 'rutas de discipulado';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->canViewDiscipleshipModule() ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->canManageDiscipleshipModule() ?? false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()?->canManageDiscipleshipModule() ?? false;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()?->canManageDiscipleshipModule() ?? false;
+    }
+
     public static function form(Form $form): Form
     {
         return $form->schema([

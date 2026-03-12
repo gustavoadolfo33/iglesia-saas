@@ -83,6 +83,11 @@ class UserResource extends Resource
     protected static ?string $modelLabel = 'usuario';
     protected static ?string $pluralModelLabel = 'usuarios';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
+    }
+
     public static function canViewAny(): bool
     {
         return auth()->user()?->canManageUsers() ?? false;
@@ -196,6 +201,7 @@ class UserResource extends Resource
                 )
                 ->columns(2)
                 ->live()
+                ->visible(fn() => !static::isPastorManager())
                 ->afterStateUpdated(function ($state, callable $set, callable $get) {
                     $current = $get('current_church_id');
 
@@ -214,6 +220,7 @@ class UserResource extends Resource
                 ->preload()
                 ->nullable()
                 ->live()
+                ->visible(fn() => !static::isPastorManager())
                 ->options(function (callable $get) {
                     $churchIds = $get('churches') ?? [];
 
@@ -336,6 +343,37 @@ class UserResource extends Resource
         $data['current_church_id'] = $currentChurchId;
 
         return $data;
+    }
+
+    public static function syncChurchAssignments(User $user, array $data): void
+    {
+        $normalized = static::normalizeManagementData($data);
+        $churchIds = $normalized['churches'] ?? [];
+        $roles = $normalized['roles'] ?? [];
+
+        if (static::selectedRolesNeedChurch($roles) && empty($churchIds)) {
+            $churchIds = static::allowedChurchIdsForCurrentUser();
+
+            if (auth()->user()?->hasRole('pastor') && auth()->user()?->current_church_id) {
+                $churchIds = [auth()->user()->current_church_id];
+            }
+        }
+
+        $churchIds = static::sanitizeChurchIds($churchIds);
+
+        $user->churches()->sync($churchIds);
+
+        $currentChurchId = isset($normalized['current_church_id']) ? (int) $normalized['current_church_id'] : null;
+
+        if (!in_array($currentChurchId, $churchIds, true)) {
+            $currentChurchId = $churchIds[0] ?? null;
+        }
+
+        if ($user->current_church_id !== $currentChurchId) {
+            $user->forceFill([
+                'current_church_id' => $currentChurchId,
+            ])->save();
+        }
     }
 
     public static function selectedRolesNeedChurch(array $roles): bool

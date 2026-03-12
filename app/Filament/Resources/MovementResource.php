@@ -28,6 +28,31 @@ class MovementResource extends Resource
     protected static ?string $modelLabel = 'movimiento';
     protected static ?string $pluralModelLabel = 'movimientos';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->canViewFinanceModule() ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->canManageFinanceModule() ?? false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()?->canManageFinanceModule() ?? false;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()?->canManageFinanceModule() ?? false;
+    }
+
     public static function form(Forms\Form $form): Forms\Form
     {
         return $form->schema([
@@ -117,6 +142,7 @@ class MovementResource extends Resource
                 Action::make('export_excel')
                     ->label('Exportar Excel')
                     ->icon('heroicon-o-arrow-down-tray')
+                    ->visible(fn() => auth()->user()?->canExportReports() ?? false)
                     ->form([
                         Select::make('month')
                             ->label('Mes')
@@ -149,6 +175,7 @@ class MovementResource extends Resource
                 Action::make('export_pdf')
                     ->label('Exportar PDF')
                     ->icon('heroicon-o-document-arrow-down')
+                    ->visible(fn() => auth()->user()?->canExportReports() ?? false)
                     ->form([
                         Select::make('month')
                             ->label('Mes')

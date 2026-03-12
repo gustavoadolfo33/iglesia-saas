@@ -22,6 +22,31 @@ class HouseholdResource extends Resource
     protected static ?string $modelLabel = 'hogar';
     protected static ?string $pluralModelLabel = 'hogares';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->canViewPeopleModule() ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->canManagePeopleModule() ?? false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()?->canManagePeopleModule() ?? false;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()?->canManagePeopleModule() ?? false;
+    }
+
     public static function form(Form $form): Form
     {
         return $form->schema([

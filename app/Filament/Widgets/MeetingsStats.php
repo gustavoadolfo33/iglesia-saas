@@ -9,6 +9,11 @@ use Illuminate\Support\Carbon;
 
 class MeetingsStats extends BaseWidget
 {
+    public static function canView(): bool
+    {
+        return auth()->user()?->canViewMeetingsWidgets() ?? false;
+    }
+
     protected function getStats(): array
     {
         $start = Carbon::now()->startOfMonth();

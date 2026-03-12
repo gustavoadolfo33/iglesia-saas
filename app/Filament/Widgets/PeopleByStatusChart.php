@@ -10,6 +10,11 @@ class PeopleByStatusChart extends ChartWidget
 {
     protected static ?string $heading = 'Personas por estado';
 
+    public static function canView(): bool
+    {
+        return auth()->user()?->canViewPastoralWidgets() ?? false;
+    }
+
     protected function getData(): array
     {
         $churchId = auth()->user()?->current_church_id;

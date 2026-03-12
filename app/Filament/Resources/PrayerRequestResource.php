@@ -25,6 +25,31 @@ class PrayerRequestResource extends Resource
     protected static ?string $modelLabel = 'pedido de oración';
     protected static ?string $pluralModelLabel = 'pedidos de oración';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->canViewFollowUpsModule() ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->canManageFollowUpsModule() ?? false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()?->canManageFollowUpsModule() ?? false;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()?->canManageFollowUpsModule() ?? false;
+    }
+
     public static function form(Form $form): Form
     {
         return $form->schema([

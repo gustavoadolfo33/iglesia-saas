@@ -11,6 +11,11 @@ class MeetingsByTypeChart extends ChartWidget
 {
     protected static ?string $heading = 'Reuniones por tipo (este mes)';
 
+    public static function canView(): bool
+    {
+        return auth()->user()?->canViewMeetingsWidgets() ?? false;
+    }
+
     protected function getData(): array
     {
         $start = Carbon::now()->startOfMonth();

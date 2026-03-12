@@ -105,6 +105,147 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasAnyRole(['super-admin', 'presidente', 'vicepresidente']);
     }
 
+    public function canViewChurchManagement(): bool
+    {
+        return $this->hasRole('super-admin')
+            || $this->hasAnyRole(['presidente', 'vicepresidente', 'presbitero', 'tesorero-global']);
+    }
+
+    public function canManageChurchManagement(): bool
+    {
+        return $this->hasAnyRole(['super-admin', 'presidente', 'vicepresidente']);
+    }
+
+    public function canViewFinanceModule(): bool
+    {
+        return $this->hasAnyPermission([
+            'finanzas.view',
+            'finanzas.create',
+            'finanzas.manage',
+            'ver_finanzas',
+            'registrar_finanzas',
+        ]);
+    }
+
+    public function canManageFinanceModule(): bool
+    {
+        return $this->hasAnyPermission([
+            'finanzas.create',
+            'finanzas.manage',
+            'registrar_finanzas',
+        ]);
+    }
+
+    public function canViewMeetingsModule(): bool
+    {
+        return $this->hasAnyPermission([
+            'reuniones.view',
+            'reuniones.create',
+            'reuniones.manage',
+            'ver_reuniones',
+            'registrar_reuniones',
+        ]);
+    }
+
+    public function canManageMeetingsModule(): bool
+    {
+        return $this->hasAnyPermission([
+            'reuniones.create',
+            'reuniones.manage',
+            'registrar_reuniones',
+        ]);
+    }
+
+    public function canManageMeetingCatalogs(): bool
+    {
+        return $this->hasAnyPermission(['reuniones.manage'])
+            || $this->hasAnyRole(['super-admin', 'presidente', 'vicepresidente', 'pastor', 'encargado-reuniones']);
+    }
+
+    public function canViewPeopleModule(): bool
+    {
+        return $this->hasAnyPermission([
+            'personas.view',
+            'personas.manage',
+            'ver_personas',
+            'registrar_personas',
+        ]);
+    }
+
+    public function canManagePeopleModule(): bool
+    {
+        return $this->hasAnyPermission([
+            'personas.manage',
+            'registrar_personas',
+        ]);
+    }
+
+    public function canViewFollowUpsModule(): bool
+    {
+        return $this->hasAnyPermission([
+            'seguimientos.view',
+            'seguimientos.manage',
+            'ver_seguimientos',
+            'registrar_seguimientos',
+        ]);
+    }
+
+    public function canManageFollowUpsModule(): bool
+    {
+        return $this->hasAnyPermission([
+            'seguimientos.manage',
+            'registrar_seguimientos',
+        ]);
+    }
+
+    public function canViewDiscipleshipModule(): bool
+    {
+        return $this->hasAnyPermission([
+            'discipulado.view',
+            'discipulado.manage',
+            'ver_discipulado',
+            'registrar_discipulado',
+        ]);
+    }
+
+    public function canManageDiscipleshipModule(): bool
+    {
+        return $this->hasAnyPermission([
+            'discipulado.manage',
+            'registrar_discipulado',
+        ]);
+    }
+
+    public function canViewPastoralSettings(): bool
+    {
+        return $this->hasAnyRole(['super-admin', 'presidente', 'vicepresidente', 'pastor']);
+    }
+
+    public function canManagePastoralSettings(): bool
+    {
+        return $this->hasAnyRole(['super-admin', 'presidente', 'vicepresidente', 'pastor']);
+    }
+
+    public function canExportReports(): bool
+    {
+        return $this->hasAnyPermission([
+            'reportes.view',
+            'reportes.finanzas.view',
+            'reportes.pastoral.view',
+            'exportar_reportes',
+        ]);
+    }
+
+    public function canViewMeetingsWidgets(): bool
+    {
+        return $this->canViewMeetingsModule();
+    }
+
+    public function canViewPastoralWidgets(): bool
+    {
+        return $this->canViewPeopleModule() || $this->canViewFollowUpsModule();
+    }
+
     public static function panelRoleNames(): array
     {
         return array_values(array_unique([

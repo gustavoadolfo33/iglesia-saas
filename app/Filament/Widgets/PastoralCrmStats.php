@@ -9,6 +9,11 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class PastoralCrmStats extends BaseWidget
 {
+    public static function canView(): bool
+    {
+        return auth()->user()?->canViewPastoralWidgets() ?? false;
+    }
+
     protected function getStats(): array
     {
         $churchId = auth()->user()?->current_church_id;

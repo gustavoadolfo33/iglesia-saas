@@ -23,6 +23,31 @@ class MeetingTypeResource extends Resource
     protected static ?string $modelLabel = 'tipo de reunion';
     protected static ?string $pluralModelLabel = 'tipos de reunion';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->canManageMeetingCatalogs() ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->canManageMeetingCatalogs() ?? false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()?->canManageMeetingCatalogs() ?? false;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()?->canManageMeetingCatalogs() ?? false;
+    }
+
     public static function form(Form $form): Form
     {
         return $form->schema([

@@ -22,6 +22,31 @@ class MeetingGroupResource extends Resource
     protected static ?string $modelLabel = 'grupo / ministerio';
     protected static ?string $pluralModelLabel = 'grupos / ministerios';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->canManageMeetingCatalogs() ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->canManageMeetingCatalogs() ?? false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()?->canManageMeetingCatalogs() ?? false;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()?->canManageMeetingCatalogs() ?? false;
+    }
+
     public static function form(Form $form): Form
     {
         return $form->schema([

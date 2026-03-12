@@ -11,6 +11,11 @@ class LatestMeetings extends BaseWidget
 {
     protected static ?string $heading = 'Últimas reuniones registradas';
 
+    public static function canView(): bool
+    {
+        return auth()->user()?->canViewMeetingsWidgets() ?? false;
+    }
+
     protected function getTableQuery(): Builder
     {
         return Meeting::query()

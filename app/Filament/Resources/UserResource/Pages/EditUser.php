@@ -30,6 +30,8 @@ class EditUser extends EditRecord
     {
         $normalized = UserResource::normalizeManagementData($this->data);
 
+        UserResource::syncChurchAssignments($this->record, $normalized);
+
         $this->record->syncRoles($normalized['roles'] ?? []);
 
         if (UserResource::isPastorManager()) {

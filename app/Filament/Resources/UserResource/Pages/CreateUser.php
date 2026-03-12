@@ -10,6 +10,11 @@ class CreateUser extends CreateRecord
 {
     protected static string $resource = UserResource::class;
 
+    protected function getRedirectUrl(): string
+    {
+        return UserResource::getUrl('index');
+    }
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         return UserResource::normalizeManagementData($data);
@@ -18,6 +23,8 @@ class CreateUser extends CreateRecord
     protected function afterCreate(): void
     {
         $normalized = UserResource::normalizeManagementData($this->data);
+
+        UserResource::syncChurchAssignments($this->record, $normalized);
 
         $this->record->syncRoles($normalized['roles'] ?? []);
 

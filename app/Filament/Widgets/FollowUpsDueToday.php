@@ -11,6 +11,11 @@ class FollowUpsDueToday extends BaseWidget
 {
     protected static ?string $heading = 'Seguimientos para hoy';
 
+    public static function canView(): bool
+    {
+        return auth()->user()?->canViewPastoralWidgets() ?? false;
+    }
+
     protected function getTableQuery(): Builder
     {
         $churchId = auth()->user()?->current_church_id;
