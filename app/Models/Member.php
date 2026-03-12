@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Models\Traits\BelongsToChurch;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Model;
 
 class Member extends Model
@@ -40,12 +42,12 @@ class Member extends Model
         return $this->belongsTo(Household::class);
     }
 
-    public function person()
+    public function person(): BelongsTo
     {
         return $this->belongsTo(Person::class, 'person_id');
     }
 
-    public function legacyPerson()
+    public function legacyPerson(): HasOne
     {
         return $this->hasOne(Person::class, 'member_id');
     }

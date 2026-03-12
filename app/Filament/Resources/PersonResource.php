@@ -93,19 +93,20 @@ class PersonResource extends Resource
                         })
                         ->searchable()
                         ->preload(),
-                    Forms\Components\Select::make('member_id')
+                    Forms\Components\Select::make('linked_member_id')
+                        ->dehydrated(false)
                         ->label('Miembro formal vinculado')
                         ->placeholder('Selecciona un miembro formal disponible')
                         ->options(function (Get $get) {
                             return static::getMemberOptionsForChurch(
                                 churchId: static::resolveChurchIdFromForm($get),
                                 currentPersonId: null,
-                                currentMemberId: $get('member_id'),
+                                currentMemberId: $get('linked_member_id'),
                             );
                         })
                         ->searchable()
                         ->preload()
-                        ->helperText('Muestra miembros formales de la misma iglesia. Prioriza miembros sin persona vinculada y conserva el vínculo actual mientras termina la transición del sistema.'),
+                        ->helperText('Este selector administra el vínculo formal con miembros. La relación principal se guarda en el registro del miembro; la referencia en personas se mantiene solo por compatibilidad temporal.'),
                 ])->columns(2),
             Forms\Components\Section::make('Persona')
                 ->schema([
@@ -243,7 +244,7 @@ class PersonResource extends Resource
             ->toArray();
     }
 
-    public static function syncMemberLink(Person $person, ?int $memberId): void
+    public static function syncCanonicalMemberLink(Person $person, ?int $memberId): void
     {
         $memberId = $memberId ?: null;
 
@@ -266,11 +267,6 @@ class PersonResource extends Resource
             return;
         }
 
-        Person::query()
-            ->where('id', '!=', $person->id)
-            ->where('member_id', $member->id)
-            ->update(['member_id' => null]);
-
         Member::query()
             ->where('id', '!=', $member->id)
             ->where('person_id', $person->id)
@@ -279,11 +275,34 @@ class PersonResource extends Resource
         $member->forceFill([
             'person_id' => $person->id,
         ])->save();
+    }
 
-        if ((int) $person->member_id !== (int) $member->id) {
+    public static function syncLegacyMemberReference(Person $person, ?int $memberId): void
+    {
+        $memberId = $memberId ?: null;
+
+        if ($memberId) {
+            Person::query()
+                ->where('id', '!=', $person->id)
+                ->where('member_id', $memberId)
+                ->update(['member_id' => null]);
+        }
+
+        if ((int) $person->member_id !== (int) $memberId) {
             $person->forceFill([
-                'member_id' => $member->id,
+                'member_id' => $memberId,
             ])->save();
         }
+    }
+
+    public static function syncMemberLink(Person $person, ?int $memberId): void
+    {
+        static::syncCanonicalMemberLink($person, $memberId);
+        static::syncLegacyMemberReference($person, $memberId);
+    }
+
+    public static function getLinkedMemberIdForForm(Person $person): ?int
+    {
+        return $person->member?->id ?? $person->legacyMember?->id;
     }
 }

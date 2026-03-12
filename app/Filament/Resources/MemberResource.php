@@ -92,7 +92,7 @@ class MemberResource extends Resource
                         })
                         ->searchable()
                         ->preload()
-                        ->helperText('Opcional. Mantiene compatibilidad temporal con persons.member_id y la nueva relacion members.person_id.'),
+                        ->helperText('La relación principal se guarda en members.person_id. La referencia en personas se conserva temporalmente solo para compatibilidad.'),
                 ])->columns(2),
             Forms\Components\Section::make('Miembro')
                 ->schema([
@@ -194,10 +194,6 @@ class MemberResource extends Resource
                 if ($currentPersonId) {
                     $query->orWhere('id', $currentPersonId);
                 }
-
-                if ($currentMemberId) {
-                    $query->orWhere('member_id', $currentMemberId);
-                }
             })
             ->orderBy('first_name')
             ->get()
@@ -205,7 +201,7 @@ class MemberResource extends Resource
             ->toArray();
     }
 
-    public static function syncPersonLink(Member $member, ?int $personId): void
+    public static function syncCanonicalPersonLink(Member $member, ?int $personId): void
     {
         $personId = $personId ?: null;
 
@@ -216,16 +212,21 @@ class MemberResource extends Resource
                 ->update(['person_id' => null]);
         }
 
-        Person::query()
-            ->where('member_id', $member->id)
-            ->when($personId, fn(Builder $query) => $query->where('id', '!=', $personId))
-            ->update(['member_id' => null]);
-
         if ($member->person_id !== $personId) {
             $member->forceFill([
                 'person_id' => $personId,
             ])->save();
         }
+    }
+
+    public static function syncLegacyPersonReference(Member $member, ?int $personId): void
+    {
+        $personId = $personId ?: null;
+
+        Person::query()
+            ->where('member_id', $member->id)
+            ->when($personId, fn(Builder $query) => $query->where('id', '!=', $personId))
+            ->update(['member_id' => null]);
 
         if (!$personId) {
             return;
@@ -242,5 +243,11 @@ class MemberResource extends Resource
                 'member_id' => $member->id,
             ])->save();
         }
+    }
+
+    public static function syncPersonLink(Member $member, ?int $personId): void
+    {
+        static::syncCanonicalPersonLink($member, $personId);
+        static::syncLegacyPersonReference($member, $personId);
     }
 }

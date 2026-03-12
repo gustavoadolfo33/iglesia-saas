@@ -9,19 +9,25 @@ class EditPerson extends EditRecord
 {
     protected static string $resource = PersonResource::class;
 
+    protected ?int $selectedMemberId = null;
+
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        $canonicalMemberId = $this->record->member?->id;
+        $data['linked_member_id'] = PersonResource::getLinkedMemberIdForForm($this->record);
 
-        if (!$data['member_id'] && $canonicalMemberId) {
-            $data['member_id'] = $canonicalMemberId;
-        }
+        return $data;
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $this->selectedMemberId = isset($data['linked_member_id']) ? (int) $data['linked_member_id'] : null;
+        unset($data['linked_member_id']);
 
         return $data;
     }
 
     protected function afterSave(): void
     {
-        PersonResource::syncMemberLink($this->record, $this->record->member_id);
+        PersonResource::syncMemberLink($this->record, $this->selectedMemberId);
     }
 }
