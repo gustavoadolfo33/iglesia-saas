@@ -85,6 +85,26 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(FollowUp::class, 'created_by');
     }
 
+    public function createdFormationTracks()
+    {
+        return $this->hasMany(FormationTrack::class, 'created_by');
+    }
+
+    public function approvedFormationTracks()
+    {
+        return $this->hasMany(FormationTrack::class, 'approved_by');
+    }
+
+    public function createdPersonFormations()
+    {
+        return $this->hasMany(PersonFormation::class, 'created_by');
+    }
+
+    public function reviewedFormationProgress()
+    {
+        return $this->hasMany(PersonFormationProgress::class, 'reviewed_by');
+    }
+
     public function isGlobalUser(): bool
     {
         return $this->hasAnyRole(array_values(array_diff(static::GLOBAL_ROLES, ['super-admin'])));

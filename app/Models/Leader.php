@@ -58,4 +58,14 @@ class Leader extends Model
     {
         return $this->hasMany(PersonDiscipleship::class);
     }
+
+    public function personFormations()
+    {
+        return $this->hasMany(PersonFormation::class);
+    }
+
+    public function formationTrackLeaders()
+    {
+        return $this->hasMany(FormationTrackLeader::class);
+    }
 }

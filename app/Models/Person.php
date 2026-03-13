@@ -105,4 +105,9 @@ class Person extends Model
     {
         return $this->hasMany(PersonDiscipleship::class);
     }
+
+    public function formations()
+    {
+        return $this->hasMany(PersonFormation::class);
+    }
 }

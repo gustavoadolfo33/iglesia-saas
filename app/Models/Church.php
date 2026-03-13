@@ -100,4 +100,14 @@ class Church extends Model
     {
         return $this->hasMany(PersonDiscipleship::class);
     }
+
+    public function formationTracks()
+    {
+        return $this->hasMany(FormationTrack::class);
+    }
+
+    public function personFormations()
+    {
+        return $this->hasMany(PersonFormation::class);
+    }
 }

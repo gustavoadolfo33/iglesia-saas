@@ -51,7 +51,6 @@ class AdminPanelProvider extends PanelProvider
                 \App\Filament\Widgets\Dashboard\Presbyter\PersonsWithoutLeaderTable::class,
                 \App\Filament\Widgets\Dashboard\Presbyter\PeopleNeedingCareTable::class,
                 \App\Filament\Widgets\Dashboard\Treasurer\LargeMovementsTable::class,
-                Widgets\FilamentInfoWidget::class,
                 \App\Filament\Widgets\MeetingsStats::class,
                 \App\Filament\Widgets\MeetingsByTypeChart::class,
                 \App\Filament\Widgets\LatestMeetings::class,
