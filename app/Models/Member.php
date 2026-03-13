@@ -12,7 +12,6 @@ class Member extends Model
 
     protected $fillable = [
         'church_id',
-        'household_id',
         'person_id',
         'first_name',
         'last_name',
@@ -34,11 +33,6 @@ class Member extends Model
     public function church()
     {
         return $this->belongsTo(Church::class);
-    }
-
-    public function household()
-    {
-        return $this->belongsTo(Household::class);
     }
 
     public function person(): BelongsTo

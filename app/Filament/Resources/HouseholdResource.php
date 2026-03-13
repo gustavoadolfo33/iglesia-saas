@@ -79,12 +79,6 @@ class HouseholdResource extends Resource
                     ->visible(fn() => auth()->user()->hasRole('super-admin') || auth()->user()->isGlobalUser())
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('members_count')
-                    ->label('Miembros')
-                    ->counts('members')
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->description('Legacy'),
-
                 Tables\Columns\TextColumn::make('persons_count')
                     ->label('Personas')
                     ->counts('persons'),
