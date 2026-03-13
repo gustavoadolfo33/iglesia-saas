@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Models\Concerns\AssignsChurchOnCreate;
 use App\Models\Traits\BelongsToChurch;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Model;
 
@@ -73,11 +72,6 @@ class Person extends Model
     public function member(): HasOne
     {
         return $this->hasOne(Member::class, 'person_id');
-    }
-
-    public function legacyMember(): BelongsTo
-    {
-        return $this->belongsTo(Member::class, 'member_id');
     }
 
     public function status()

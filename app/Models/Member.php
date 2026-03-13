@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Models\Traits\BelongsToChurch;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Model;
 
 class Member extends Model
@@ -45,11 +44,6 @@ class Member extends Model
     public function person(): BelongsTo
     {
         return $this->belongsTo(Person::class, 'person_id');
-    }
-
-    public function legacyPerson(): HasOne
-    {
-        return $this->hasOne(Person::class, 'member_id');
     }
 
     public function attendances()
