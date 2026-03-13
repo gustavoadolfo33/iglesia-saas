@@ -3,9 +3,9 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Meeting;
+use App\Support\Dashboard\DashboardContext;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use Illuminate\Support\Carbon;
 
 class MeetingsStats extends BaseWidget
 {
@@ -16,11 +16,11 @@ class MeetingsStats extends BaseWidget
 
     protected function getStats(): array
     {
-        $start = Carbon::now()->startOfMonth();
-        $end = Carbon::now()->endOfMonth();
+        $context = DashboardContext::resolve();
 
         $meetings = Meeting::query()
-            ->whereBetween('date', [$start, $end])
+            ->when($context['church_id'], fn($query, $churchId) => $query->where('church_id', $churchId))
+            ->whereBetween('date', [$context['date_from'], $context['date_to']])
             ->get();
 
         return [
