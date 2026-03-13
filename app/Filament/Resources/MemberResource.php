@@ -64,23 +64,6 @@ class MemberResource extends Resource
                         ->live()
                         ->required(fn() => auth()->user()->hasRole('super-admin') || auth()->user()->isGlobalUser())
                         ->visible(fn() => auth()->user()->hasRole('super-admin') || auth()->user()->isGlobalUser()),
-                    Forms\Components\Select::make('household_id')
-                        ->label('Hogar')
-                        ->options(function (Get $get) {
-                            $churchId = static::resolveChurchIdFromForm($get);
-
-                            if (!$churchId) {
-                                return [];
-                            }
-
-                            return Household::query()
-                                ->where('church_id', $churchId)
-                                ->orderBy('name')
-                                ->pluck('name', 'id')
-                                ->toArray();
-                        })
-                        ->searchable()
-                        ->preload(),
                     Forms\Components\Select::make('person_id')
                         ->label('Persona vinculada')
                         ->options(function (Get $get) {
@@ -128,7 +111,7 @@ class MemberResource extends Resource
                     ->label('Persona vinculada')
                     ->placeholder('—')
                     ->toggleable(),
-                Tables\Columns\TextColumn::make('household.name')
+                Tables\Columns\TextColumn::make('person.household.name')
                     ->label('Hogar')
                     ->placeholder('—')
                     ->toggleable(),

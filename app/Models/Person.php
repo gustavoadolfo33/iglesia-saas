@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\AssignsChurchOnCreate;
 use App\Models\Traits\BelongsToChurch;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Model;
 
@@ -17,6 +18,7 @@ class Person extends Model
 
     protected $fillable = [
         'church_id',
+        'household_id',
         'assigned_leader_id',
         'status_id',
         'first_name',
@@ -72,6 +74,11 @@ class Person extends Model
     public function member(): HasOne
     {
         return $this->hasOne(Member::class, 'person_id');
+    }
+
+    public function household(): BelongsTo
+    {
+        return $this->belongsTo(Household::class);
     }
 
     public function status()

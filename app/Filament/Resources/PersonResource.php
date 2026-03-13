@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PersonResource\Pages;
 use App\Models\Church;
+use App\Models\Household;
 use App\Models\Leader;
 use App\Models\Member;
 use App\Models\Person;
@@ -93,6 +94,24 @@ class PersonResource extends Resource
                         })
                         ->searchable()
                         ->preload(),
+                    Forms\Components\Select::make('household_id')
+                        ->label('Hogar')
+                        ->options(function (Get $get) {
+                            $churchId = static::resolveChurchIdFromForm($get);
+
+                            if (!$churchId) {
+                                return [];
+                            }
+
+                            return Household::query()
+                                ->where('church_id', $churchId)
+                                ->orderBy('name')
+                                ->pluck('name', 'id')
+                                ->toArray();
+                        })
+                        ->searchable()
+                        ->preload()
+                        ->helperText('El hogar se administra desde la persona como relación principal.'),
                     Forms\Components\Select::make('linked_member_id')
                         ->dehydrated(false)
                         ->label('Miembro formal vinculado')
@@ -147,6 +166,7 @@ class PersonResource extends Resource
                 Tables\Columns\TextColumn::make('full_name')->label('Persona')->searchable(['first_name', 'last_name'])->sortable(['first_name']),
                 Tables\Columns\TextColumn::make('status.name')->label('Estado')->badge(),
                 Tables\Columns\TextColumn::make('assignedLeader.user.name')->label('Lider')->toggleable(),
+                Tables\Columns\TextColumn::make('household.name')->label('Hogar')->placeholder('—')->toggleable(),
                 Tables\Columns\TextColumn::make('phone')->label('Telefono')->toggleable(),
                 Tables\Columns\IconColumn::make('is_new_believer')->label('Nuevo')->boolean(),
                 Tables\Columns\IconColumn::make('needs_pastoral_care')->label('Cuidado')->boolean(),

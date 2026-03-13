@@ -81,7 +81,13 @@ class HouseholdResource extends Resource
 
                 Tables\Columns\TextColumn::make('members_count')
                     ->label('Miembros')
-                    ->counts('members'),
+                    ->counts('members')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->description('Legacy'),
+
+                Tables\Columns\TextColumn::make('persons_count')
+                    ->label('Personas')
+                    ->counts('persons'),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Creado')

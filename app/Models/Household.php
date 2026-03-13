@@ -34,4 +34,9 @@ class Household extends Model
     {
         return $this->hasMany(Member::class);
     }
+
+    public function persons()
+    {
+        return $this->hasMany(Person::class);
+    }
 }
