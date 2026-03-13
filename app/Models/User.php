@@ -238,12 +238,37 @@ class User extends Authenticatable implements FilamentUser
 
     public function canViewMeetingsWidgets(): bool
     {
-        return $this->canViewMeetingsModule();
+        return $this->isTenantUser() && $this->canViewMeetingsModule();
     }
 
     public function canViewPastoralWidgets(): bool
     {
-        return $this->canViewPeopleModule() || $this->canViewFollowUpsModule();
+        return $this->isTenantUser() && ($this->canViewPeopleModule() || $this->canViewFollowUpsModule());
+    }
+
+    public function canViewExecutiveGlobalDashboard(): bool
+    {
+        return $this->hasAnyRole(['super-admin', 'presidente']);
+    }
+
+    public function canViewFinancialGlobalDashboard(): bool
+    {
+        return $this->hasAnyRole(['super-admin', 'presidente', 'tesorero-global']);
+    }
+
+    public function canViewPastoralGlobalDashboard(): bool
+    {
+        return $this->hasAnyRole(['super-admin', 'presidente', 'presbitero']);
+    }
+
+    public function canViewPastoralOperationalGlobalDashboard(): bool
+    {
+        return $this->hasAnyRole(['super-admin', 'presbitero']);
+    }
+
+    public function canViewFinancialOperationalGlobalDashboard(): bool
+    {
+        return $this->hasAnyRole(['super-admin', 'tesorero-global']);
     }
 
     public function hasGlobalRoleAssigned(): bool
@@ -276,6 +301,21 @@ class User extends Authenticatable implements FilamentUser
             'local' => 'Local',
             default => 'Sin definir',
         };
+    }
+
+    public function canViewPresidentDashboard(): bool
+    {
+        return $this->canViewExecutiveGlobalDashboard();
+    }
+
+    public function canViewTreasurerGlobalDashboard(): bool
+    {
+        return $this->canViewFinancialGlobalDashboard();
+    }
+
+    public function canViewPresbyterDashboard(): bool
+    {
+        return $this->canViewPastoralGlobalDashboard();
     }
 
     public static function panelRoleNames(): array
