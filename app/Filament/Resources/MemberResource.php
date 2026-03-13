@@ -219,35 +219,8 @@ class MemberResource extends Resource
         }
     }
 
-    public static function syncLegacyPersonReference(Member $member, ?int $personId): void
-    {
-        $personId = $personId ?: null;
-
-        Person::query()
-            ->where('member_id', $member->id)
-            ->when($personId, fn(Builder $query) => $query->where('id', '!=', $personId))
-            ->update(['member_id' => null]);
-
-        if (!$personId) {
-            return;
-        }
-
-        $person = Person::query()->find($personId);
-
-        if (!$person) {
-            return;
-        }
-
-        if ((int) $person->member_id !== (int) $member->id) {
-            $person->forceFill([
-                'member_id' => $member->id,
-            ])->save();
-        }
-    }
-
     public static function syncPersonLink(Member $member, ?int $personId): void
     {
         static::syncCanonicalPersonLink($member, $personId);
-        static::syncLegacyPersonReference($member, $personId);
     }
 }
