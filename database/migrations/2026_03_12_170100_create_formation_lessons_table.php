@@ -25,7 +25,10 @@ return new class extends Migration {
             $table->index('formation_track_id');
             $table->index('sort_order');
             $table->index('is_active');
-            $table->unique(['formation_track_id', 'slug']);
+            $table->unique(
+                ['formation_track_id', 'slug'],
+                'fl_track_slug_unique'
+            );
         });
     }
 

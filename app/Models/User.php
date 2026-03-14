@@ -28,6 +28,8 @@ class User extends Authenticatable implements FilamentUser
         'encargado-seguimiento',
         'secretario-registro',
         'discipulador',
+        'coordinador-formacion',
+        'docente-formacion',
     ];
 
     public const PASTOR_ASSIGNABLE_LOCAL_ROLES = [
@@ -36,6 +38,8 @@ class User extends Authenticatable implements FilamentUser
         'encargado-seguimiento',
         'secretario-registro',
         'discipulador',
+        'coordinador-formacion',
+        'docente-formacion',
     ];
 
     protected $fillable = [
@@ -234,6 +238,55 @@ class User extends Authenticatable implements FilamentUser
             'discipulado.manage',
             'registrar_discipulado',
         ]);
+    }
+
+    public function canViewFormationModule(): bool
+    {
+        return $this->hasAnyPermission([
+            'formacion.view',
+            'formacion.courses.manage',
+            'formacion.teachers.manage',
+            'formacion.enrollments.manage',
+            'formacion.progress.manage',
+            'discipulado.view',
+            'discipulado.manage',
+            'ver_discipulado',
+            'registrar_discipulado',
+        ]) || $this->hasAnyRole(['coordinador-formacion', 'docente-formacion', 'discipulador']);
+    }
+
+    public function canManageFormationCourses(): bool
+    {
+        return $this->hasAnyPermission([
+            'formacion.courses.manage',
+        ]) || $this->hasAnyRole(['coordinador-formacion']);
+    }
+
+    public function canManageFormationTeachers(): bool
+    {
+        return $this->hasAnyPermission([
+            'formacion.teachers.manage',
+        ]) || $this->hasAnyRole(['coordinador-formacion']);
+    }
+
+    public function canViewFormationEnrollments(): bool
+    {
+        return $this->canViewFormationModule();
+    }
+
+    public function canManageFormationEnrollments(): bool
+    {
+        return $this->hasAnyPermission([
+            'formacion.enrollments.manage',
+            'formacion.progress.manage',
+        ]) || $this->hasAnyRole(['coordinador-formacion', 'docente-formacion', 'discipulador']);
+    }
+
+    public function canManageFormationProgress(): bool
+    {
+        return $this->hasAnyPermission([
+            'formacion.progress.manage',
+        ]) || $this->hasAnyRole(['coordinador-formacion', 'docente-formacion', 'discipulador']);
     }
 
     public function canViewPastoralSettings(): bool

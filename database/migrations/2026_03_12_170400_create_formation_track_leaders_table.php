@@ -14,7 +14,10 @@ return new class extends Migration {
             $table->string('role', 20);
             $table->timestamps();
 
-            $table->unique(['formation_track_id', 'leader_id']);
+            $table->unique(
+                ['formation_track_id', 'leader_id'],
+                'ftl_track_leader_unique'
+            );
         });
     }
 

@@ -31,7 +31,10 @@ return new class extends Migration {
             $table->index('category');
             $table->index('level');
             $table->index('is_active');
-            $table->unique(['church_id', 'slug']);
+            $table->unique(
+                ['church_id', 'slug'],
+                'ft_church_slug_unique'
+            );
         });
     }
 

@@ -20,7 +20,10 @@ return new class extends Migration {
             $table->index('person_formation_id');
             $table->index('formation_lesson_id');
             $table->index('status');
-            $table->unique(['person_formation_id', 'formation_lesson_id']);
+            $table->unique(
+                ['person_formation_id', 'formation_lesson_id'],
+                'pf_prog_pf_lesson_unique'
+            );
         });
     }
 
