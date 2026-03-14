@@ -747,6 +747,7 @@ class UserResource extends Resource
             'discipulador' => 'Discipulador',
             'coordinador-formacion' => 'Coordinador de formacion',
             'docente-formacion' => 'Docente de formacion',
+            'alumno-formacion' => 'Alumno de formacion',
             default => $role,
         };
     }

@@ -108,6 +108,7 @@ class RolePermissionSeeder extends Seeder
                 'formacion.enrollments.manage',
                 'formacion.progress.manage',
             ],
+            'alumno-formacion' => [],
         ];
 
         foreach ($map as $roleName => $permissions) {

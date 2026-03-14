@@ -32,6 +32,10 @@ class User extends Authenticatable implements FilamentUser
         'docente-formacion',
     ];
 
+    public const STUDENT_ROLES = [
+        'alumno-formacion',
+    ];
+
     public const PASTOR_ASSIGNABLE_LOCAL_ROLES = [
         'contador-local',
         'encargado-reuniones',
@@ -47,6 +51,7 @@ class User extends Authenticatable implements FilamentUser
         'email',
         'password',
         'current_church_id',
+        'person_id',
     ];
 
     protected $hidden = [
@@ -77,6 +82,11 @@ class User extends Authenticatable implements FilamentUser
     public function currentChurch()
     {
         return $this->belongsTo(\App\Models\Church::class, 'current_church_id');
+    }
+
+    public function person()
+    {
+        return $this->belongsTo(Person::class);
     }
 
     public function leaderProfiles()
@@ -117,6 +127,20 @@ class User extends Authenticatable implements FilamentUser
     public function isTenantUser(): bool
     {
         return $this->hasAnyRole(static::LOCAL_ROLES);
+    }
+
+    public function isFormationStudent(): bool
+    {
+        return $this->hasRole('alumno-formacion');
+    }
+
+    public static function systemRoleNames(): array
+    {
+        return array_values(array_unique([
+            ...static::GLOBAL_ROLES,
+            ...static::LOCAL_ROLES,
+            ...static::STUDENT_ROLES,
+        ]));
     }
 
     public function canManageUsers(): bool

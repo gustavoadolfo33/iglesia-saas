@@ -13,7 +13,7 @@ class RoleSeeder extends Seeder
     {
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        $roles = User::panelRoleNames();
+        $roles = User::systemRoleNames();
 
         foreach ($roles as $role) {
             Role::firstOrCreate([
